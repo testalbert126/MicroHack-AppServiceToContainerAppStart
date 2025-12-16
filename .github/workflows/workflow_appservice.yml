@@ -1,10 +1,16 @@
 # This workflow will build a .NET project
 # For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-net
 
+
 name: Build and Deploy to Container App
+
+
 
 on:
   workflow_dispatch:
+
+permissions:
+  id-token: write
 
 jobs:
 
@@ -32,3 +38,21 @@ jobs:
         az acr login --name mhuser06containerregistry --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }} &&
         docker build -t mhuser06containerregistry.azurecr.io/microhackapp:1 -f Dockerfile . &&
         docker push mhuser06containerregistry.azurecr.io/microhackapp:1
+
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    - name: Deploy to Container App
+      uses: azure/container-apps-deploy-action@v2
+      with:
+        imageToDeploy: mhuser06containerregistry.azurecr.io/microhackapp:${{ steps.get_tag.outputs.image_tag }}
+        acrUsername: ${{ secrets.ACR_USERNAME }}
+        acrPassword: ${{ secrets.ACR_PASSWORD }}
+        resourceGroup: mhuser06RG
+        containerAppEnvironment: mhuser06env
+        containerAppName: mhuser06containerapp
+        targetPort: 8080
