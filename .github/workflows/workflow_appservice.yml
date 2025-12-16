@@ -66,3 +66,5 @@ jobs:
         containerAppEnvironment: mhuser06env
         containerAppName: mhuser06containerapp
         targetPort: 8080
+        environmentVariables: |
+          API_URL=https://microhack-aiapp.redflower-6c4344c3.westeurope.azurecontainerapps.io
