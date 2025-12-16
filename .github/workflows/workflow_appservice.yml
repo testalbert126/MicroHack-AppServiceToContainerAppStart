@@ -32,7 +32,13 @@ jobs:
       
     - name: Build with dotnet
       run: dotnet build --no-restore
-
+      
+    - name: Login to Azure
+      uses: azure/login@v2
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Get Latest Container Image Tag
       id: get_tag
@@ -49,13 +55,6 @@ jobs:
         docker build -t mhuser06containerregistry.azurecr.io/microhackapp:${{ steps.get_tag.outputs.image_tag }} -f Dockerfile . &&
         docker push mhuser06containerregistry.azurecr.io/microhackapp:${{ steps.get_tag.outputs.image_tag }}
         
-
-    - name: Login to Azure
-      uses: azure/login@v2
-      with:
-        client-id: ${{ secrets.AZURE_CLIENT_ID }}
-        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
 
     - name: Deploy to Container App
       uses: azure/container-apps-deploy-action@v2
